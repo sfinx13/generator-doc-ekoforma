@@ -14,7 +14,6 @@ def generate_random_time(workshop_date, start_hour, start_minute, end_hour, end_
     
     return datetime.combine(workshop_date, (datetime.min + random_time).time())
 
-    # Fonction pour calculer la durée en minutes
 def calculate_duration(start_time, end_time):
     return int((end_time - start_time).total_seconds() / 60)
 
@@ -24,11 +23,9 @@ def create_zoom_timesheet(filepath, formation, participants):
     ws.title = "Participants"
 
     def generate_meetings_and_participants(date_formation, row_header_title = 1):
-        # Générer la chaîne aléatoire pour le titre
         workshop_number = generate_random_string()
         merged_text = f"participants_{workshop_number}_zoom"
 
-        # Ajouter une ligne fusionnée avec le texte généré en première ligne
         ws.merge_cells(start_row=row_header_title, start_column=1, end_row=row_header_title, end_column=7)
         merged_cell = ws.cell(row=row_header_title, column=1)
         merged_cell.value = merged_text
@@ -40,7 +37,6 @@ def create_zoom_timesheet(filepath, formation, participants):
                             bottom=Side(style='thin'))
         merged_cell.border = thin_border
 
-        # Définir les en-têtes
         headers = [
             "N° de réunion", 
             "Sujet", 
@@ -51,10 +47,8 @@ def create_zoom_timesheet(filepath, formation, participants):
             "Participants"
         ]
 
-        # Ajouter les en-têtes à la feuille
         ws.append(headers)
 
-        # Appliquer du style aux en-têtes
         header_font = Font(name='Calibri', size=11, bold=True, color='000000') 
         header_fill = PatternFill(start_color='BEC0BF', end_color='BEC0BF', fill_type='solid')
         header_alignment = Alignment(horizontal='center', vertical='center')
@@ -67,12 +61,10 @@ def create_zoom_timesheet(filepath, formation, participants):
                     cell.alignment = header_alignment
                     cell.border = thin_border
 
-        # Ajuster la largeur des colonnes
         column_widths = [35, 60, 20, 20, 30, 15, 15]
         for i, column_width in enumerate(column_widths, start=1):
             ws.column_dimensions[chr(64 + i)].width = column_width
 
-        # Générer les données pour les réunions
         meetings = []
         num_participants = len(participants)
         
@@ -100,7 +92,6 @@ def create_zoom_timesheet(filepath, formation, participants):
             num_participants
         ])
 
-        # Ajouter les réunions à la feuille
         for meeting in meetings:
             ws.append(meeting)
             ws.row_dimensions[ws.max_row].height = 40
