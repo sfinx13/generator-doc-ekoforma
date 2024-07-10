@@ -1,4 +1,4 @@
-import os, json
+import os
 from openpyxl.styles import Font, PatternFill
 import services.source_parser as source_parser
 import services.timesheet_generator as timesheet_generator
