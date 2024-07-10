@@ -1,4 +1,6 @@
 __pycache__/
 doc/
 venv/
+public/*.xlsx
+public/*.docx
 *.xlsx
