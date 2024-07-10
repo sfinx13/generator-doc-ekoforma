@@ -1,28 +1,45 @@
-import source_parser
-import timesheet_generator
-import os
-from openpyxl.styles import Font, PatternFill
 
-filepath = 'doc/'
+import services_handler as service_handler
 
+MENU_OPTIONS = {
+    1: 'Generer la feuille de temps zoom', 
+    2: 'Generer les attestations de présences', 
+    3: 'En cours....',
+    4: 'Quitter' 
+}
 
-for filename in os.listdir(filepath):
-    formation = source_parser.create_formation(filepath + filename)
-    participants = source_parser.create_participants(filepath + filename)
+def run_option(option):
+    """
+    Execute la fonctionnalité selon le choix de l'utilisateur
+    """
+    if option not in range(1, len(MENU_OPTIONS) + 1):
+        raise ValueError('Merci de saisir une option valide')
 
-    wb, ws = timesheet_generator.create_zoom_timesheet(filename, formation, participants)
+    print(f'[{option}] - {MENU_OPTIONS[option].upper()}')
+    match option:
+        case 1:
+            service_handler.generate_timesheet_zoom()
+        case 2:
+            service_handler.generate_attendance_certificates()
+        case 4:
+            exit()
 
-    gray_fill = PatternFill(start_color='DCDCDC', end_color='DCDCDC', fill_type='solid')
-    bold_font = Font(name='Calibri', size=11, bold=True)
-    for row in range(3, ws.max_row + 1):
-        cell = ws.cell(row=row, column=1)
-        if cell.value and cell.value != 'N° de réunion' and not cell.value.endswith('zoom'):
-            cell.fill = gray_fill
-            cell.font = bold_font
-            if cell.value == 'empty':
-                cell.value = ''
+def show_options():
+    """
+    Affiche les options de l'application
+    """
+    for key in range(1, len(MENU_OPTIONS) + 1):
+        print(f'[{key}] - {MENU_OPTIONS[key]}')
 
-    wb.save("zoom_timesheet_{}".format(filename))
-    print("zoom_timesheet_{} generated".format(filename))
+def start():
+    while True:
+        show_options()
+        try:
+            run_option(int(input('Merci de saisir une option valide: ')))
+        except KeyboardInterrupt:
+            print('\nAurevoir...')
+            exit()
+        except ValueError:
+            pass
 
-print('Done!')
+start()

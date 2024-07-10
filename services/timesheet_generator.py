@@ -3,6 +3,7 @@ from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from datetime import datetime, timedelta
 import random
 import string
+import os
 
 def generate_random_string(length=12):
     return '9' + ''.join(random.choices(string.digits, k=length-1))
@@ -183,7 +184,10 @@ def create_zoom_timesheet(filepath, formation, participants):
             if cell.value == 'empty' or cell.value:
                 cell.border = thin_border
     
-    wb.save("zoom_timesheet_{}".format(filepath))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_directory = os.path.join(script_dir, "../public")
+    output_file = os.path.join(output_directory, "zoom_timesheet_{}".format(filepath))
+    wb.save(output_file)
 
     return wb, ws
 
