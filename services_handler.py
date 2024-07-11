@@ -2,7 +2,7 @@ import os
 from openpyxl.styles import Font, PatternFill
 import services.source_parser as source_parser
 import services.timesheet_generator as timesheet_generator
-import services.attendance_certificates as attendance_certificates
+import services.attendance_certificates_generator as attendance_certificates_generator
 
 
 def generate_timesheet_zoom():
@@ -40,5 +40,5 @@ def generate_attendance_certificates():
         print(f"Formation - {formation_titre}")
         
         for participant in participants:
-            attendance_certificates.generate_attendance_certificate(participant, formation)
+            attendance_certificates_generator.generate_attendance_certificate(participant, formation)
             print(f"    Attestation de présence généré pour {participant['nom_complet']}")
