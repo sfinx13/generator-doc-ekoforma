@@ -28,11 +28,17 @@ def create_table(ws, start_row, start_col, title, data):
         cell = ws.cell(row=start_row, column=col)
         cell.border = border
 
+    participants_section = False
+
     # Ajouter les données
     for row_index, row_data in enumerate(data, start=start_row + 1):
         for col_index, cell_value in enumerate(row_data, start=start_col):
             cell = ws.cell(row=row_index, column=col_index)
             cell.value = cell_value
+
+            # Détecter la section des participants
+            if cell_value == "PARTICIPANTS":
+                participants_section = True
 
             # Appliquer les styles spécifiques
             if row_index == start_row + 1 or row_index == start_row + 2:
@@ -59,7 +65,7 @@ def create_table(ws, start_row, start_col, title, data):
                     cell.alignment = Alignment(vertical='center')
             
             if row_index == start_row + 9:
-                 if col_index == start_col:
+                if col_index == start_col:
                     cell.font = Font(name='Calibri', size=12, bold=True)
 
             if row_index == start_row + 10 or row_index == start_row + 14:
@@ -79,12 +85,9 @@ def create_table(ws, start_row, start_col, title, data):
 
             if row_index == start_row + 12 and col_index in [start_col, start_col + 1]:
                 cell.alignment = Alignment(horizontal='left')
-                cell.font = Font(name='Trebuchet MS', size=12)
-
             
             if row_index == start_row + 12 and col_index in [start_col + 4, start_col + 5, start_col + 6]:
                 cell.alignment = Alignment(horizontal='right')
-                cell.font = Font(name='Trebuchet MS', size=12)
 
             if row_index == start_row + 11:
                 # Bordure haute pour ligne 12
@@ -100,16 +103,58 @@ def create_table(ws, start_row, start_col, title, data):
                     cell.border = Border(bottom=border_style, left=border_style)
                 if col_index == start_col + 6:
                     cell.border = Border(bottom=border_style, right=border_style)
-
+            
             # Colorer les lignes vides après la 17ème ligne
-            if row_index >= start_row + 16 and not any(row_data):
+            if participants_section and not any(row_data):
                 if col_index < start_col + 4:
                     cell.fill = PatternFill(start_color='DEEBF7', end_color='DEEBF7', fill_type='solid')
                 else:
                     cell.fill = PatternFill(start_color='FFE699', end_color='FFE699', fill_type='solid')
-            
-            if row_index >= start_row + 17 and any(row_data):
+
+            # Appliquer la police Trebuchet MS aux participants
+            if participants_section and any(row_data):
                 cell.font = Font(name='Trebuchet MS', size=12)
+                if col_index <= start_col + 1:
+                    cell.alignment = Alignment(horizontal='left')
+                elif col_index == start_col + 2 or col_index >= start_col + 4:
+                    cell.alignment = Alignment(horizontal='right')
+                else:
+                    cell.alignment = Alignment(horizontal='center')
+
+
+            # Ajouter bordure gauche pour la première cellule de chaque ligne de participant
+            if participants_section and col_index == start_col and cell_value != "PARTICIPANTS":
+                cell.border = Border(left=border_style)
+
+            # Ajouter bordure droite pour la dernière cellule de chaque ligne de participant
+            if participants_section and col_index == start_col + 6 and cell_value != "PARTICIPANTS":
+                cell.border = Border(right=border_style)
+
+
+            # Stop styling after the "Je soussigné(e)" line
+            if cell_value and "Je sousign" in cell_value:
+                merge_start_cell = ws.cell(row=row_index, column=start_col).coordinate
+                merge_end_cell = ws.cell(row=row_index, column=start_col + 6).coordinate
+                ws.merge_cells(f'{merge_start_cell}:{merge_end_cell}')
+                ws[merge_start_cell].border = Border(top=border_style, left=border_style, right=border_style, bottom=border_style)
+                ws[merge_start_cell].alignment = Alignment(vertical="center")
+                ws[merge_start_cell].font = Font(name='Calibri', size=12)
+                ws.row_dimensions[row_index].height = 60  # Augmenter légèrement la hauteur de la ligne
+                participants_section = False
+
+            if cell_value and "Article 441-1 du code pénal:" in cell_value:
+                
+                merge_start_cell = ws.cell(row=row_index, column=start_col).coordinate
+                merge_end_cell = ws.cell(row=row_index, column=start_col + 6).coordinate
+                ws.merge_cells(f'{merge_start_cell}:{merge_end_cell}')
+                ws[merge_start_cell].border = Border(top=border_style, left=border_style, right=border_style, bottom=border_style)
+                ws[merge_start_cell].alignment = Alignment(vertical="center")
+                ws[merge_start_cell].font = Font(name='Calibri', size=11)
+                ws.row_dimensions[row_index].height = 40  # Augmenter légèrement la hauteur de la ligne
+                bold_text = "Article 441-1 du code pénal:"
+                normal_text = cell_value.replace(bold_text, "")    
+                # ws.write(row_index, col_index, bold_text, style_bold)    
+                # ws.write_merge(row_index, row_index, col_index, col_index, bold_text + normal_text, style_normal)
     
     # Définir les largeurs des colonnes
     ws.column_dimensions[ws.cell(row=start_row + 1, column=start_col).column_letter].width = 35
@@ -130,9 +175,6 @@ def create_table(ws, start_row, start_col, title, data):
     ws.merge_cells(start_row=start_row + 12, start_column=start_col + 2, end_row=start_row + 12, end_column=start_col + 3)
 
     ws.merge_cells(start_row=start_row + 14, end_row=start_row + 14, start_column=start_col, end_column=start_col + 6)
-
-
-    
 
 # Créer un nouveau Workbook
 wb = Workbook()
@@ -160,16 +202,17 @@ data = [
     ["", "", "", "", "", "", ""],
     ["DI MEGLIO", "FABIEN", "10107272352",	"ANDPC", "25/4/24 09:08:46", "25/4/24 12:10:25", "182"],
     ["", "", "", "", "", "", ""],
-    ["Je sousignée(é) ZAFER MOHAMED agissant en ma qualité de Président, Directeur Général de l'organisme EKOFORMA atteste que les personnes dont les noms figurent ci-dessus ont suivi les séquences de la classe virtuelle de l\'action ou \n du programme dont le numéro et la session sont indiqués en haut à gauche de cette attestation. \nJe joins en complément de cette attestation l\'ensemble des logs informatiques issus de ma plateforme."],
+    ["Je sousignée(é) ZAFER MOHAMED agissant en ma qualité de Président, Directeur Général de l'organisme EKOFORMA atteste que les personnes dont les noms figurent ci-dessus ont suivi les séquences de la classe virtuelle de l\'action ou \ndu programme dont le numéro et la session sont indiqués en haut à gauche de cette attestation. \nJe joins en complément de cette attestation l\'ensemble des logs informatiques issus de ma plateforme."],
     ["Cachet de l'organisme : ", "", "", "", "", "", "le 27/04/2024"],
     [],
     [],
     [],
-    ["Article 441-1 du code pénal: 'Constitue un faux toute altération frauduleuse de la vérité, de nature à causer un préjudice et accomplie par quelque moyen que ce soit, dans un écrit ou tout autre support d'expression de la pensée qui a pour objet ou qui peut avoir pour effet d'établir la preuve d'un droit ou d'un fait ayant des conséquences juridiques. Le faux et l'usage de faux sont punis de trois ans d'emprisonnement et de 45 000 euros d'amende.'"]
+    ["Article 441-1 du code pénal: \"Constitue un faux toute altération frauduleuse de la vérité, de nature à causer un préjudice et accomplie par quelque moyen que ce soit, dans un écrit ou tout autre support d'expression de la pensée qui a pour objet\n ou qui peut avoir pour effet d'établir la preuve d'un droit ou d'un fait ayant des conséquences juridiques. Le faux et l'usage de faux sont punis de trois ans d'emprisonnement et de 45 000 euros d'amende.\""]
 ]
 
 # Ajouter le tableau
 create_table(ws, start_row=1, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
+create_table(ws, start_row=50, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
 
 # Sauvegarder le fichier
 file_path = "exemple_dynamique.xlsx"
