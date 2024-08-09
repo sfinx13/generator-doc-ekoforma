@@ -180,6 +180,7 @@ def create_table(ws, start_row, start_col, title, data):
 
 # Fonction pour créer les données pour chaque demi-journée
 def create_data_for_meeting(meeting, participants):
+    formateur_morning = participants['formateur']['morning']
     data = [
         ["Nom de l'organisme :", "EKOFORMA"],
         ["Identifiant :", "99LH"],
@@ -189,39 +190,38 @@ def create_data_for_meeting(meeting, participants):
         [],
         ["Adresse url / logiciel utilisé : ZOOM"],
         [],
-        [meeting[6], "Heure de début : " + meeting[7], "Heure de Fin : " + meeting[8], "", "1ère demi-journée"],
+        [meeting[6], meeting[7], meeting[8], "", "1ère demi-journée"],
         ["INTERVENANTS"],
         ["NOM", "Prénom", "N°RPPS ou Adeli", "", "Heure de la 1ère connexion", "Heure de la dernière \nconnexion", "Total du temps connecté réalisé (en \n minutes)"],
+        [formateur_morning[0].split()[1], formateur_morning[0].split()[0], "", "", meeting[9], meeting[10], str(meeting[12])],
+        [],
+        ["PARTICIPANTS"],
+        ["NOM", "Prénom", "N°RPPS ou Adeli", "Financeur", "Heure de la 1ère connexion", "Heure de la dernière \nconnexion", "Total du temps connecté réalisé (en \n minutes)"],
     ]
 
-    # Ajout des informations sur l'intervenant (formateur)
-#    formateur_morning = participants['formateur']['morning']
-#    data.append([formateur_morning[0], formateur_morning[1], "", "", formateur_morning[3], formateur_morning[4], formateur_morning[5]])
-
-#    data.append([])  # Ligne vide après l'intervenant
-
-    # Ajout des participants
-#    data.append(["PARTICIPANTS"])
-#    data.append(["NOM", "Prénom", "N°RPPS ou Adeli", "Financeur", "Heure de la 1ère connexion", "Heure de la dernière \nconnexion", "Total du temps connecté réalisé (en \n minutes)"])
-
-#    for email, participant in participants.items():
-#        if email != 'formateur':  # Ignorer le formateur dans les participants
-#            morning_session = participant['morning']
-#            data.append([morning_session[0], morning_session[1], "", "ANDPC", morning_session[3], morning_session[4], morning_session[5]])
-#            data.append(["", "", "", "", "", "", ""])  # Ligne vide entre chaque participant
+    for email, participant in participants.items():
+        if email != 'formateur':  # Ignorer le formateur dans les participants
+            if "MATIN" in meeting[4]:
+                morning_session = participant['morning']
+                data.append([morning_session[0], morning_session[1], "", "ANDPC", morning_session[3], morning_session[4], str(morning_session[5])])
+                data.append(["", "", "", "", "", "", ""])  # Ligne vide entre chaque participant
+            else:
+                afternoon_session = participant['afternoon']
+                data.append([afternoon_session[0], afternoon_session[1], "", "ANDPC", afternoon_session[3], afternoon_session[4], str(afternoon_session[5])])
+                data.append(["", "", "", "", "", "", ""])  # Ligne vide entre chaque participant
 
 
      # Ajout des lignes finales
-#    data.append([
-#        "Je sousignée(é) ZAFER MOHAMED agissant en ma qualité de Président, Directeur Général de l'organisme EKOFORMA atteste que les personnes dont les noms figurent ci-dessus ont suivi les séquences de la classe virtuelle de l'action ou du programme dont le numéro et la session sont indiqués en haut à gauche de cette attestation. Je joins en complément de cette attestation l'ensemble des logs informatiques issus de ma plateforme."
-#    ])
-#    data.append(["Cachet de l'organisme : ", "", "", "", "", "", ""]) # Ne pas oublié la date
-#    data.append([])
-#    data.append([])
-#    data.append([])
-#    data.append([
-#        "Article 441-1 du code pénal: \"Constitue un faux toute altération frauduleuse de la vérité, de nature à causer un préjudice et accomplie par quelque moyen que ce soit, dans un écrit ou tout autre support d'expression de la pensée qui a pour objet ou qui peut avoir pour effet d'établir la preuve d'un droit ou d'un fait ayant des conséquences juridiques. Le faux et l'usage de faux sont punis de trois ans d'emprisonnement et de 45 000 euros d'amende.\""
-#    ])
+    data.append([
+        "Je sousignée(é) ZAFER MOHAMED agissant en ma qualité de Président, Directeur Général de l'organisme EKOFORMA atteste que les personnes dont les noms figurent ci-dessus ont suivi les séquences de la classe virtuelle de l'action ou du programme dont le numéro et la session sont indiqués en haut à gauche de cette attestation. Je joins en complément de cette attestation l'ensemble des logs informatiques issus de ma plateforme."
+    ])
+    data.append(["Cachet de l'organisme : ", "", "", "", "", "", ""]) # Ne pas oublié la date
+    data.append([])
+    data.append([])
+    data.append([])
+    data.append([
+        "Article 441-1 du code pénal: \"Constitue un faux toute altération frauduleuse de la vérité, de nature à causer un préjudice et accomplie par quelque moyen que ce soit, dans un écrit ou tout autre support d'expression de la pensée qui a pour objet ou qui peut avoir pour effet d'établir la preuve d'un droit ou d'un fait ayant des conséquences juridiques. Le faux et l'usage de faux sont punis de trois ans d'emprisonnement et de 45 000 euros d'amende.\""
+    ])
 
     return data
 
@@ -250,51 +250,3 @@ def generate_tables_for_each_meeting(filename, data_structure):
                 start_row += num_lines + 10  # Ajout de 10 lignes d'espace entre chaque tableau
     
     wb.save("./public/synthese_de_suivi_classe_virtuelle_{}".format(filename))
-
-# Créer un nouveau Workbook
-# wb = Workbook()
-# ws = wb.active
-
-# Les données pour le tableau
-""" data = [
-    ["Nom de l'organisme :", "EKOFORMA"],
-    ["Identifiant :", "99LH"],
-    [],
-    ["N° Action / Programme : 99LH2325001", "", "N° de session : 24.015", "", "N° de l’unité: 1", "Volume horaire déclaré :", "25/04/2024 : 3 H MATIN"],
-    ["Evaluation et amélioration de la pertinence du parcours de soin du patient insuffisant cardiaque chronique"],
-    [],
-    ["Adresse url / logiciel utilisé : ZOOM"],
-    [],
-    ["Date de la vacation : 25/04/2024", "Heure de début : 9h08", "Heure de Fin : 12h10", "", "1ère demi-journée"],
-    ["INTERVENANTS"],
-    ["NOM", "Prénom", "N°RPPS ou Adeli", "", "Heure de la 1ère connexion", "Heure de la dernière \nconnexion", "Total du temps connecté réalisé (en \n minutes)"],
-    ["LHASBELLAOUI", "DOUNIA", "", "", "25/4/24 08:52:17", "25/4/24 12:10:25", "198"],
-    [],
-    ["PARTICIPANTS"],
-    ["NOM", "Prénom", "N°RPPS ou Adeli", "Financeur", "Heure de la 1ère connexion", "Heure de la dernière \nconnexion", "Total du temps connecté réalisé (en \n minutes)"],
-    ["", "", "", "", "", "", ""],
-    ["BOTBOL COHEN", "VANESSA", "10102878989", "ANDPC", "25/4/24 09:08:46", "25/4/24 12:10:25", "182"],
-    ["", "", "", "", "", "", ""],
-    ["DI MEGLIO", "FABIEN", "10107272352",	"ANDPC", "25/4/24 09:08:46", "25/4/24 12:10:25", "182"],
-    ["", "", "", "", "", "", ""],
-    ["Je sousignée(é) ZAFER MOHAMED agissant en ma qualité de Président, Directeur Général de l'organisme EKOFORMA atteste que les personnes dont les noms figurent ci-dessus ont suivi les séquences de la classe virtuelle de l\'action ou \ndu programme dont le numéro et la session sont indiqués en haut à gauche de cette attestation. \nJe joins en complément de cette attestation l\'ensemble des logs informatiques issus de ma plateforme."],
-    ["Cachet de l'organisme : ", "", "", "", "", "", "le 27/04/2024"],
-    [],
-    [],
-    [],
-    ["Article 441-1 du code pénal: \"Constitue un faux toute altération frauduleuse de la vérité, de nature à causer un préjudice et accomplie par quelque moyen que ce soit, dans un écrit ou tout autre support d'expression de la pensée qui a pour objet\n ou qui peut avoir pour effet d'établir la preuve d'un droit ou d'un fait ayant des conséquences juridiques. Le faux et l'usage de faux sont punis de trois ans d'emprisonnement et de 45 000 euros d'amende.\""]
-] """
-
-# Ajouter le tableau
-# create_table(ws, start_row=1, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
-# create_table(ws, start_row=50, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
-
-# Sauvegarder le fichier
-# file_path = "exemple_dynamique.xlsx"
-# wb.save(file_path)
-
-# generate_tables_for_each_meeting(ws, data_structure)
-
-# Sauvegarder le fichier
-# file_path = "exemple_dynamique.xlsx"
-# wb.save(file_path)

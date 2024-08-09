@@ -30,8 +30,8 @@ def generate_timesheet_zoom():
 
         wb.save("public/zoom_timesheet_{}".format(filename))
         print("zoom_timesheet_{} generated".format(filename))
-        print(full_meetings_and_participants)
-        print('------------------------------------------------')
+        # print(full_meetings_and_participants)
+        # print('------------------------------------------------')
     print('Timesheet generated done!')
 
     return full_meetings_and_participants
