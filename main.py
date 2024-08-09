@@ -2,10 +2,9 @@
 import services_handler as service_handler
 
 MENU_OPTIONS = {
-    1: 'Generer la feuille de temps zoom', 
+    1: 'Generer la feuille de temps zoom et la synthèse de suivi virtuelle', 
     2: 'Generer les attestations de présences', 
-    3: 'En cours....',
-    4: 'Quitter' 
+    3: 'Quitter' 
 }
 
 def run_option(option):
@@ -18,10 +17,11 @@ def run_option(option):
     print(f'[{option}] - {MENU_OPTIONS[option].upper()}')
     match option:
         case 1:
+            print(option)
             service_handler.generate_timesheet_zoom()
         case 2:
             service_handler.generate_attendance_certificates()
-        case 4:
+        case 3:
             exit()
 
 def show_options():

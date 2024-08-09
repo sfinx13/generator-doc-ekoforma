@@ -3,6 +3,7 @@ from openpyxl.styles import Font, PatternFill
 import services.source_parser as source_parser
 import services.timesheet_generator as timesheet_generator
 import services.attendance_certificates_generator as attendance_certificates_generator
+import services.virtualclass_synthese_generator as virtualclass_synthese_generator
 
 
 def generate_timesheet_zoom():
@@ -12,7 +13,10 @@ def generate_timesheet_zoom():
         formation = source_parser.create_formation(filepath + filename)
         participants = source_parser.create_participants(filepath + filename)
 
-        wb, ws = timesheet_generator.create_zoom_timesheet(filename, formation, participants)
+        wb, ws, full_meetings_and_participants = timesheet_generator.create_zoom_timesheet(filename, formation, participants)
+
+        # Appel de la fonction pour générer les tableaux pour chaque demi-journée
+        virtualclass_synthese_generator.generate_tables_for_each_meeting(filename, full_meetings_and_participants)
 
         gray_fill = PatternFill(start_color='DCDCDC', end_color='DCDCDC', fill_type='solid')
         bold_font = Font(name='Calibri', size=11, bold=True)
@@ -26,9 +30,11 @@ def generate_timesheet_zoom():
 
         wb.save("public/zoom_timesheet_{}".format(filename))
         print("zoom_timesheet_{} generated".format(filename))
-
+        print(full_meetings_and_participants)
+        print('------------------------------------------------')
     print('Timesheet generated done!')
 
+    return full_meetings_and_participants
 
 def generate_attendance_certificates():
     filepath = 'assets/source/'

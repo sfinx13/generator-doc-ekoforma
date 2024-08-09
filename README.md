@@ -5,12 +5,12 @@
 
 > Create virtual environments
 ```sh
- python -m venv env
+ python -m venv venv
 ```
 
 > Activate virtual environment
 ```sh
-source env/bin/activate 
+source venv/bin/activate 
 ```
 
 > Install packages with pip

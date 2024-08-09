@@ -1,6 +1,7 @@
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
+
 def create_table(ws, start_row, start_col, title, data):
     # Calculer les cellules de début et de fin pour la fusion
     start_cell = ws.cell(row=start_row, column=start_col).coordinate
@@ -176,12 +177,86 @@ def create_table(ws, start_row, start_col, title, data):
 
     ws.merge_cells(start_row=start_row + 14, end_row=start_row + 14, start_column=start_col, end_column=start_col + 6)
 
+
+# Fonction pour créer les données pour chaque demi-journée
+def create_data_for_meeting(meeting, participants):
+    data = [
+        ["Nom de l'organisme :", "EKOFORMA"],
+        ["Identifiant :", "99LH"],
+        [],
+        [meeting[1], "", meeting[2], "", meeting[3], "Volume horaire déclaré :", meeting[4]],
+        [meeting[5]],  # Titre de la formation
+        [],
+        ["Adresse url / logiciel utilisé : ZOOM"],
+        [],
+        [meeting[6], "Heure de début : " + meeting[7], "Heure de Fin : " + meeting[8], "", "1ère demi-journée"],
+        ["INTERVENANTS"],
+        ["NOM", "Prénom", "N°RPPS ou Adeli", "", "Heure de la 1ère connexion", "Heure de la dernière \nconnexion", "Total du temps connecté réalisé (en \n minutes)"],
+    ]
+
+    # Ajout des informations sur l'intervenant (formateur)
+#    formateur_morning = participants['formateur']['morning']
+#    data.append([formateur_morning[0], formateur_morning[1], "", "", formateur_morning[3], formateur_morning[4], formateur_morning[5]])
+
+#    data.append([])  # Ligne vide après l'intervenant
+
+    # Ajout des participants
+#    data.append(["PARTICIPANTS"])
+#    data.append(["NOM", "Prénom", "N°RPPS ou Adeli", "Financeur", "Heure de la 1ère connexion", "Heure de la dernière \nconnexion", "Total du temps connecté réalisé (en \n minutes)"])
+
+#    for email, participant in participants.items():
+#        if email != 'formateur':  # Ignorer le formateur dans les participants
+#            morning_session = participant['morning']
+#            data.append([morning_session[0], morning_session[1], "", "ANDPC", morning_session[3], morning_session[4], morning_session[5]])
+#            data.append(["", "", "", "", "", "", ""])  # Ligne vide entre chaque participant
+
+
+     # Ajout des lignes finales
+#    data.append([
+#        "Je sousignée(é) ZAFER MOHAMED agissant en ma qualité de Président, Directeur Général de l'organisme EKOFORMA atteste que les personnes dont les noms figurent ci-dessus ont suivi les séquences de la classe virtuelle de l'action ou du programme dont le numéro et la session sont indiqués en haut à gauche de cette attestation. Je joins en complément de cette attestation l'ensemble des logs informatiques issus de ma plateforme."
+#    ])
+#    data.append(["Cachet de l'organisme : ", "", "", "", "", "", ""]) # Ne pas oublié la date
+#    data.append([])
+#    data.append([])
+#    data.append([])
+#    data.append([
+#        "Article 441-1 du code pénal: \"Constitue un faux toute altération frauduleuse de la vérité, de nature à causer un préjudice et accomplie par quelque moyen que ce soit, dans un écrit ou tout autre support d'expression de la pensée qui a pour objet ou qui peut avoir pour effet d'établir la preuve d'un droit ou d'un fait ayant des conséquences juridiques. Le faux et l'usage de faux sont punis de trois ans d'emprisonnement et de 45 000 euros d'amende.\""
+#    ])
+
+    return data
+
+
+# Fonction pour générer les tableaux dans la feuille Excel
+def generate_tables_for_each_meeting(filename, data_structure):
+    start_row = 1
+    start_col = 1
+    wb = Workbook()
+    ws = wb.active
+
+    for day_key in ['date_debut', 'date_fin']:
+        day_info = data_structure.get(day_key)
+        if day_info:
+            for meeting in day_info['meetings']:
+                participants = day_info['participants']  # Récupérer les participants pour cette journée
+                data = create_data_for_meeting(meeting, participants)
+                
+                # Appel de la méthode create_table avec le start_row actuel
+                create_table(ws, start_row=start_row, start_col=start_col, title="Synthèse de suivi de classe virtuelle", data=data)
+                
+                # Calcul du nombre de lignes dans le tableau actuel
+                num_lines = len(data)
+                
+                # Incrémentation de start_row pour le prochain tableau
+                start_row += num_lines + 10  # Ajout de 10 lignes d'espace entre chaque tableau
+    
+    wb.save("./public/synthese_de_suivi_classe_virtuelle_{}".format(filename))
+
 # Créer un nouveau Workbook
-wb = Workbook()
-ws = wb.active
+# wb = Workbook()
+# ws = wb.active
 
 # Les données pour le tableau
-data = [
+""" data = [
     ["Nom de l'organisme :", "EKOFORMA"],
     ["Identifiant :", "99LH"],
     [],
@@ -208,14 +283,18 @@ data = [
     [],
     [],
     ["Article 441-1 du code pénal: \"Constitue un faux toute altération frauduleuse de la vérité, de nature à causer un préjudice et accomplie par quelque moyen que ce soit, dans un écrit ou tout autre support d'expression de la pensée qui a pour objet\n ou qui peut avoir pour effet d'établir la preuve d'un droit ou d'un fait ayant des conséquences juridiques. Le faux et l'usage de faux sont punis de trois ans d'emprisonnement et de 45 000 euros d'amende.\""]
-]
+] """
 
 # Ajouter le tableau
-create_table(ws, start_row=1, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
-create_table(ws, start_row=50, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
+# create_table(ws, start_row=1, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
+# create_table(ws, start_row=50, start_col=1, title="Synthèse de suivi de classe virtuelle", data=data)
 
 # Sauvegarder le fichier
-file_path = "exemple_dynamique.xlsx"
-wb.save(file_path)
+# file_path = "exemple_dynamique.xlsx"
+# wb.save(file_path)
 
-file_path
+# generate_tables_for_each_meeting(ws, data_structure)
+
+# Sauvegarder le fichier
+# file_path = "exemple_dynamique.xlsx"
+# wb.save(file_path)

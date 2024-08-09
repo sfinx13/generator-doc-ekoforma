@@ -1,6 +1,5 @@
 from openpyxl import load_workbook
-from datetime import datetime
-
+from datetime import datetime, timedelta
 
 def parse_sheet(filepath, sheet_name):
     wb = load_workbook(filename=filepath)
@@ -38,6 +37,18 @@ def create_formation(filepath):
     if (day_end is not None):
         formation['date_fin'] = datetime.strptime(f"{day_end}/{month}/{year}", "%d/%m/%y")
     
+    date_debut = formation['date_debut']
+    date_fin = formation.get('date_fin', date_debut) 
+    volumes_horaires = []
+    current_date = date_debut
+    while current_date <= date_fin:
+        date_str = current_date.strftime('%d/%m/%Y')
+        volumes_horaires.append(f"{date_str} : 3 H MATIN")
+        volumes_horaires.append(f"{date_str} : 4 H APRÈS-MIDI")
+        current_date += timedelta(days=1)
+        
+    formation['volumes_horaires'] = volumes_horaires
+    
     return formation
 
 def create_participants(filepath):
@@ -47,11 +58,14 @@ def create_participants(filepath):
         for row in data:
             participant = {}
             participant['civilite'] = row[0]
-            participant['nom_complet'] = row[1]
-            participant['email'] = row[2]
-            participant['rpps'] = row[3]
-            participant['phone'] = row[4]
-            participant['financement'] = row[5]
+            participant['nom_complet'] =  "{} {}".format(row[1], row[2])
+            participant['nom'] = row[1]
+            participant['prenoms'] = row[2]
+            participant['prenom'] = row[2].split()[0]
+            participant['email'] = row[3]
+            participant['rpps'] = row[4]
+            participant['phone'] = row[5]
+            participant['financement'] = row[6]
             participants.append(participant)
     except Exception as e:
         print(f"Erreur: {e}")

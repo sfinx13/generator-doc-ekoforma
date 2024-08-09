@@ -22,8 +22,10 @@ def create_zoom_timesheet(filepath, formation, participants):
     wb = Workbook()
     ws = wb.active
     ws.title = "Participants"
+    full_meetings_and_participants = {}
 
     def generate_meetings_and_participants(date_formation, row_header_title = 1):
+        meetings_and_participants = {}
         workshop_number = generate_random_string()
         merged_text = f"participants_{workshop_number}_zoom"
 
@@ -73,7 +75,14 @@ def create_zoom_timesheet(filepath, formation, participants):
         end_time_morning = generate_random_time(date_formation, 12, 10, 12, 15)
         meetings.append([
             workshop_number,
-            "Formation - {}".format(formation['titre']),
+            "N° Action / Programme : {}".format(formation['session']),
+            "N° de session : {}".format(formation.get('code')),
+            "N° de l’unité: 1",
+            "{} : 3 H MATIN".format(start_time_morning.strftime('%d/%m/%Y')),
+            formation['titre'],
+            "Date de la vacation : {}".format(start_time_morning.strftime("%d/%m/%y")),
+            "Heure de début : {}".format(start_time_morning.strftime("%H:%M")),
+            "Heure de Fin : {}".format(end_time_morning.strftime("%H:%M")),
             start_time_morning.strftime("%d/%m/%y %H:%M:%S"),
             end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
@@ -85,14 +94,21 @@ def create_zoom_timesheet(filepath, formation, participants):
         end_time_afternoon = generate_random_time(date_formation,17, 35, 17, 45)
         meetings.append([
             workshop_number,
-            "Formation - {}".format(formation['titre']),
+            "N° Action / Programme : {}".format(formation['session']),
+            "N° de session : {}".format(formation.get('code')),
+            "N° de l’unité: 1",
+            "{} : 4 H APRÈS-MIDI".format(start_time_afternoon.strftime('%d/%m/%Y')),
+            formation['titre'],
+            "Date de la vacation : {}".format(start_time_afternoon.strftime("%d/%m/%y")),
+            "Heure de début : {}".format(start_time_afternoon.strftime("%H:%M")),
+            "Heure de Fin : {}".format(end_time_afternoon.strftime("%H:%M")),
             start_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
             end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
             calculate_duration(start_time_afternoon, end_time_afternoon),
             num_participants
         ])
-
+        meetings_and_participants['meetings'] = meetings
         for meeting in meetings:
             ws.append(meeting)
             ws.row_dimensions[ws.max_row].height = 40
@@ -121,6 +137,21 @@ def create_zoom_timesheet(filepath, formation, participants):
             'Non',
             'Non'
         ])
+
+        if 'participants' not in meetings_and_participants:
+            meetings_and_participants['participants'] = {}
+            if 'formateur' not in meetings_and_participants['participants']:
+                meetings_and_participants['participants']['formateur'] = {}
+
+        meetings_and_participants['participants']['formateur']['morning'] = [
+            formation['formateur'],
+            formation['session'],
+            "classe{}@ekoforma.com".format(formation['classe']).lower(),
+            start_time_morning.strftime("%d/%m/%y %H:%M:%S"),
+            end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
+            calculate_duration(start_time_morning, end_time_morning)
+        ]
+
         ws.row_dimensions[ws.max_row].height = 25
 
         ws.append([
@@ -132,6 +163,16 @@ def create_zoom_timesheet(filepath, formation, participants):
             'Non',
             'Non'
         ])
+
+        meetings_and_participants['participants']['formateur']['afternoon'] = [
+            formation['formateur'],
+            formation['session'],
+            "classe{}@ekoforma.com".format(formation['classe']).lower(),
+            start_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
+            end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
+            calculate_duration(start_time_afternoon, end_time_afternoon),
+        ]
+
         ws.row_dimensions[ws.max_row].height = 25
 
         start_time_morning_participant = generate_random_time(date_formation, 9, 0, 9, 7)
@@ -151,6 +192,17 @@ def create_zoom_timesheet(filepath, formation, participants):
                         "Oui",
                         "Oui"
                     ])
+                    if participant['email'] not in meetings_and_participants['participants']:
+                        meetings_and_participants['participants'][participant['email']] = {}
+                    
+                    meetings_and_participants['participants'][participant['email']]['morning'] = [
+                        "{}".format(participant['nom_complet']),
+                        participant['prenom'],
+                        participant['email'],
+                        start_time_morning_participant.strftime("%d/%m/%y %H:%M:%S"),
+                        end_time_morning_participant.strftime("%d/%m/%y %H:%M:%S"),
+                        calculate_duration(start_time_morning_participant, end_time_morning_participant),
+                    ]
                 if (row == 1):
                     ws.append([
                         "{}".format(participant['nom_complet']),
@@ -161,18 +213,28 @@ def create_zoom_timesheet(filepath, formation, participants):
                         "Oui",
                         "Oui"
                     ])
+                    meetings_and_participants['participants'][participant['email']]['afternoon'] = [
+                        "{}".format(participant['nom_complet']),
+                        participant['prenom'],
+                        participant['email'],
+                        start_time_afternoon_participant.strftime("%d/%m/%y %H:%M:%S"),
+                        end_time_afternoon_participant.strftime("%d/%m/%y %H:%M:%S"),
+                        calculate_duration(start_time_afternoon_participant, end_time_afternoon_participant),
+                    ]
                 ws.row_dimensions[ws.max_row].height = 25
+        
+        return meetings_and_participants
 
                     
         
-    generate_meetings_and_participants(formation['date_debut'])
+    full_meetings_and_participants['date_debut'] = generate_meetings_and_participants(formation['date_debut'])
     
     ws.append([])
     ws.row_dimensions[ws.max_row + 1].height = 80
     ws.merge_cells(start_row=ws.max_row + 1, start_column=1, end_row=ws.max_row + 1, end_column=7)
 
     if (formation.get('date_fin')):
-        generate_meetings_and_participants(formation['date_fin'], ws.max_row + 1)
+        full_meetings_and_participants['date_fin'] = generate_meetings_and_participants(formation['date_fin'], ws.max_row + 1)
 
     thin_border = Border(left=Side(style='thin'),
                          right=Side(style='thin'),
@@ -189,6 +251,6 @@ def create_zoom_timesheet(filepath, formation, participants):
     output_file = os.path.join(output_directory, "zoom_timesheet_{}".format(filepath))
     wb.save(output_file)
 
-    return wb, ws
+    return wb, ws, full_meetings_and_participants
 
 
