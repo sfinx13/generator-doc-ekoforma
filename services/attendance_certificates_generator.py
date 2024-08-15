@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 
 
-doc_path = 'assets/ATTESTATION_DE_PARTICIPATION_A_UN_PROGRAMME_DE_DPC.docx'
+doc_path = 'static/ATTESTATION_DE_PARTICIPATION_A_UN_PROGRAMME_DE_DPC.docx'
 
 def generate_attendance_certificate(participant, formation):
     doc = Document(doc_path)
@@ -50,7 +50,7 @@ def generate_attendance_certificate(participant, formation):
                         paragraph.add_run(parts[1])
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_directory = os.path.join(script_dir, "../public")
-    output_file = os.path.join(output_directory, f"../public/ATTESTATION_DE_PARTICIPATION_A_UN_PROGRAMME_DE_DPC_{participant['nom_complet']}.docx")                        
+    output_directory = os.path.join(script_dir, "../downloads")
+    output_file = os.path.join(output_directory, f"../downloads/{formation.get('code')}_ATTESTATION_DE_PARTICIPATION_A_UN_PROGRAMME_DE_DPC_{participant['nom_complet']}.docx")                        
 
     doc.save(output_file)

@@ -1,7 +1,7 @@
 __pycache__/
 doc/
 venv/
-public/*.xlsx
-public/*.docx
+downloads/*.xlsx
+downloads/*.docx
 *.xlsx
 *.~lock.*

@@ -247,8 +247,8 @@ def create_zoom_timesheet(filepath, formation, participants):
                 cell.border = thin_border
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_directory = os.path.join(script_dir, "../public")
-    output_file = os.path.join(output_directory, "zoom_timesheet_{}".format(filepath))
+    output_directory = os.path.join(script_dir, "../downloads")
+    output_file = os.path.join(output_directory, "{}_zoom_timesheet_{}".format(formation['code'], filepath))
     wb.save(output_file)
 
     return wb, ws, full_meetings_and_participants

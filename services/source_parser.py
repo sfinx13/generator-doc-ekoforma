@@ -58,7 +58,7 @@ def create_participants(filepath):
         for row in data:
             participant = {}
             participant['civilite'] = row[0]
-            participant['nom_complet'] =  "{} {}".format(row[1], row[2])
+            participant['nom_complet'] = "{} {}".format(row[1], row[2])
             participant['nom'] = row[1]
             participant['prenoms'] = row[2]
             participant['prenom'] = row[2].split()[0]

@@ -7,14 +7,14 @@ import services.virtualclass_synthese_generator as virtualclass_synthese_generat
 
 
 def generate_timesheet_zoom():
-    filepath = 'assets/source/'
+    filepath = 'uploads/'
 
     for filename in os.listdir(filepath):
         formation = source_parser.create_formation(filepath + filename)
         participants = source_parser.create_participants(filepath + filename)
 
         wb, ws, full_meetings_and_participants = timesheet_generator.create_zoom_timesheet(filename, formation, participants)
-
+        
         # Appel de la fonction pour générer les tableaux pour chaque demi-journée
         virtualclass_synthese_generator.generate_tables_for_each_meeting(filename, full_meetings_and_participants)
 
@@ -28,16 +28,14 @@ def generate_timesheet_zoom():
                 if cell.value == 'empty':
                     cell.value = ''
 
-        wb.save("public/zoom_timesheet_{}".format(filename))
+        wb.save("downloads/{}_zoom_timesheet_{}".format(formation['code'], filename))
         print("zoom_timesheet_{} generated".format(filename))
-        # print(full_meetings_and_participants)
-        # print('------------------------------------------------')
     print('Timesheet generated done!')
 
     return full_meetings_and_participants
 
 def generate_attendance_certificates():
-    filepath = 'assets/source/'
+    filepath = 'uploads/'
 
     for filename in os.listdir(filepath):
         formation = source_parser.create_formation(filepath + filename)

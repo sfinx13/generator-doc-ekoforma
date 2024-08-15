@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark" />
+    <title>Generation fichier</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        .flex-container {
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            gap: 16px;
+        }
+        .align-right {
+            justify-content: flex-end;
+        }
+
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .flash-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .flash-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+<body>
+    <header class="container">
+        <h1>{{ title }}</h1>
+        <p>Outil pour générer les feuilles de temps zoom, synthèse de suivi virtuelle et générer les attestations de présences.</p>
+    </header>
+    <main class="container">
+        <!-- Afficher les messages flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <article class="flash-message flash-{{ category }}">
+                        {{ message }}
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+        {% block content %} {% endblock %}
+    </main>
+    <footer class="container">
+        <p>Tools created by <a href="https://github.com/sfinx13" target="_blank">@sfinx13</a></p>
+    </footer>
+
+</body>
+</html> 

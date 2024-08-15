@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section>
+        <p class="notice">
+            Veuillez télécharger et compléter le modèle ci-dessous pour construire le fichier à uploader, afin de générer les documents demandés.
+            <br>
+            <a href="./../static/99LH2325001.xlsx" download>Modèle à remplir à télécharger</a>
+        </p>
+        <fieldset>
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
+                <div>
+                    <input type="file" id="file" class="file" name="file">
+                </div>
+                <input type="submit" value="Générer">
+            </form>
+        </fieldset>
+    </section>
+    <section>
+        
+        <p class="flex-container align-right">
+            <a href="{{url_for('download_all_files')}}">Tout télécharger</a></li>
+            <a href="{{ url_for('delete_all_files')}}">Tout supprimer</a></li>
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Nom du fichier</th>
+                    <th colspan="2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file }}</td>
+                    <td><a href="{{ url_for('download_file', filename=file) }}">Télécharger</a></td>
+                    <td><a class="secondary" href="{{ url_for('delete_file', filename=file) }}">Supprimer</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    
+        <a href="{{ url_for('home') }}">Retour à l'accueil</a>
+    </section>
+
+{% endblock %}

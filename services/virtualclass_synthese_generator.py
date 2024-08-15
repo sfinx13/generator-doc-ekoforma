@@ -153,7 +153,8 @@ def create_table(ws, start_row, start_col, title, data):
                 ws[merge_start_cell].font = Font(name='Calibri', size=11)
                 ws.row_dimensions[row_index].height = 40  # Augmenter légèrement la hauteur de la ligne
                 bold_text = "Article 441-1 du code pénal:"
-                normal_text = cell_value.replace(bold_text, "")    
+                cell_value.replace(bold_text, "")
+                # normal_text = cell_value.replace(bold_text, "")    
                 # ws.write(row_index, col_index, bold_text, style_bold)    
                 # ws.write_merge(row_index, row_index, col_index, col_index, bold_text + normal_text, style_normal)
     
@@ -211,7 +212,7 @@ def create_data_for_meeting(meeting, participants):
                 data.append(["", "", "", "", "", "", ""])  # Ligne vide entre chaque participant
 
 
-     # Ajout des lignes finales
+    # Ajout des lignes finales
     data.append([
         "Je sousignée(é) ZAFER MOHAMED agissant en ma qualité de Président, Directeur Général de l'organisme EKOFORMA atteste que les personnes dont les noms figurent ci-dessus ont suivi les séquences de la classe virtuelle de l'action ou du programme dont le numéro et la session sont indiqués en haut à gauche de cette attestation. Je joins en complément de cette attestation l'ensemble des logs informatiques issus de ma plateforme."
     ])
@@ -232,6 +233,7 @@ def generate_tables_for_each_meeting(filename, data_structure):
     start_col = 1
     wb = Workbook()
     ws = wb.active
+    code_formation = 0
 
     for day_key in ['date_debut', 'date_fin']:
         day_info = data_structure.get(day_key)
@@ -239,7 +241,7 @@ def generate_tables_for_each_meeting(filename, data_structure):
             for meeting in day_info['meetings']:
                 participants = day_info['participants']  # Récupérer les participants pour cette journée
                 data = create_data_for_meeting(meeting, participants)
-                
+                code_formation = meeting[0]
                 # Appel de la méthode create_table avec le start_row actuel
                 create_table(ws, start_row=start_row, start_col=start_col, title="Synthèse de suivi de classe virtuelle", data=data)
                 
@@ -249,4 +251,4 @@ def generate_tables_for_each_meeting(filename, data_structure):
                 # Incrémentation de start_row pour le prochain tableau
                 start_row += num_lines + 10  # Ajout de 10 lignes d'espace entre chaque tableau
     
-    wb.save("./public/synthese_de_suivi_classe_virtuelle_{}".format(filename))
+    wb.save("./downloads/{}_synthese_de_suivi_classe_virtuelle_{}".format(code_formation, filename))
