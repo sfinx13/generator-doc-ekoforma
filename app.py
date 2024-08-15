@@ -1,5 +1,4 @@
-import os
-import zipfile
+import zipfile, os, datetime
 from flask import Flask , render_template, request, redirect, flash, send_from_directory, send_file
 import services_handler as service_handler
 
@@ -25,7 +24,8 @@ def log_request_info():
 def home():
     # Lister les fichiers dans le répertoire
     files = os.listdir(app.config['GENERATED_FILES_FOLDER'])
-    sorted_files = sorted(files)
+    valid_files = [f for f in files if f.endswith('.xlsx') or f.endswith('.docx')]
+    sorted_files = sorted(valid_files)
     return render_template('index.html', title='Génération de documents administratifs', files=sorted_files)
 
 @app.route("/upload_file", methods=['POST'])
@@ -60,13 +60,15 @@ def download_file(filename):
 def download_all_files():
     try:
         folder_path = app.config['GENERATED_FILES_FOLDER']
-        zip_filename = "tous_les_documents.zip"
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        zip_filename = f"tous_les_documents_{timestamp}.zip"
         zip_path = os.path.join(folder_path, zip_filename)
 
         with zipfile.ZipFile(zip_path, 'w') as zipf:
             for root, dirs, files in os.walk(folder_path):
                 for file in files:
-                    if file != zip_filename:
+                    print(file)
+                    if 'xlsx' in file or 'docx' in file:
                         file_path = os.path.join(root, file)
                         zipf.write(file_path, os.path.relpath(file_path, folder_path))
 

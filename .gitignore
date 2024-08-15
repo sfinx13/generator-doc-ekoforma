@@ -4,5 +4,5 @@ venv/
 uploads/*.xlsx
 downloads/*.xlsx
 downloads/*.docx
-*.xlsx
+downloads/*.zip
 *.~lock.*
