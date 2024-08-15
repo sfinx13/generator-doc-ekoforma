@@ -1,21 +1,17 @@
 import os
 import zipfile
 from flask import Flask , render_template, request, redirect, flash, send_from_directory, send_file
-from flask_debugtoolbar import DebugToolbarExtension
 import services_handler as service_handler
 
 app = Flask(__name__)
-app.debug = True
-app.config['SECRET_KEY'] = 'dev_key'
+app.config['SECRET_KEY'] = 'secret_key'
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limite de 16 Mo
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['GENERATED_FILES_FOLDER'] = 'downloads/'
 
 ALLOWED_EXTENSIONS = {'xls', 'xlsx'}
 
 # Activer la toolbar de débogage
-toolbar = DebugToolbarExtension(app)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
