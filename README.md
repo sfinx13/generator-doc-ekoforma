@@ -18,7 +18,23 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Application console
 > Execute
 ```sh
-python main.py
+python console.py
 ```
+
+![Application console](./__DOC/console_app.png)
+
+### Application web
+> Execute
+```sh
+flask --app app run
+```
+
+![Application web](./__DOC/web_app.png)
+
+## Environnement
+
+* Production: https://app-generate-doc-f2b71d88da7a.herokuapp.com
+* Local: http://localhost:5000
