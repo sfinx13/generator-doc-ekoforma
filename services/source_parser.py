@@ -15,8 +15,8 @@ def parse_sheet(filepath, sheet_name):
             return data
 
         data_sheet = extract_data(sheet)
-    except:
-        print("Erreur : Le fichier n'est pas supporté ou est corrompu.")
+    except Exception as e:
+        print("Erreur : Le fichier n'est pas supporté ou est corrompu.", e)
 
     return data_sheet
 
