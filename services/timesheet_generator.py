@@ -29,10 +29,11 @@ def create_zoom_timesheet(filepath, formation, participants):
         workshop_number = generate_random_string()
         merged_text = f"participants_{workshop_number}_zoom"
 
+        # Fusion des cellules pour la première ligne
         ws.merge_cells(start_row=row_header_title, start_column=1, end_row=row_header_title, end_column=7)
         merged_cell = ws.cell(row=row_header_title, column=1)
         merged_cell.value = merged_text
-        merged_cell.font = Font(name='Calibri', size=11, bold=True)
+        merged_cell.font = Font(name='Helvetica Neue', size=11, bold=True)
         merged_cell.alignment = Alignment(horizontal='center', vertical='center')
         thin_border = Border(left=Side(style='thin'),
                             right=Side(style='thin'),
@@ -52,7 +53,7 @@ def create_zoom_timesheet(filepath, formation, participants):
 
         ws.append(headers)
 
-        header_font = Font(name='Calibri', size=11, bold=True, color='000000') 
+        header_font = Font(name='Helvetica Neue', size=11, bold=True, color='000000') 
         header_fill = PatternFill(start_color='BEC0BF', end_color='BEC0BF', fill_type='solid')
         header_alignment = Alignment(horizontal='center', vertical='center')
 
@@ -64,7 +65,7 @@ def create_zoom_timesheet(filepath, formation, participants):
                     cell.alignment = header_alignment
                     cell.border = thin_border
 
-        column_widths = [35, 60, 20, 20, 30, 15, 15]
+        column_widths = [25, 40, 20, 20, 30, 20, 15]
         for i, column_width in enumerate(column_widths, start=1):
             ws.column_dimensions[chr(64 + i)].width = column_width
 
@@ -73,16 +74,26 @@ def create_zoom_timesheet(filepath, formation, participants):
         
         start_time_morning = generate_random_time(date_formation, 8, 45, 8, 58)
         end_time_morning = generate_random_time(date_formation, 12, 10, 12, 15)
+        # meetings.append([
+        #     workshop_number,
+        #     "N° Action / Programme : {}".format(formation['session']),
+        #     "N° de session : {}".format(formation.get('code')),
+        #     "N° de l’unité: 1",
+        #     "{} : 3 H MATIN".format(start_time_morning.strftime('%d/%m/%Y')),
+        #     formation['titre'],
+        #     "Date de la vacation : {}".format(start_time_morning.strftime("%d/%m/%y")),
+        #     "Heure de début : {}".format(start_time_morning.strftime("%H:%M")),
+        #     "Heure de Fin : {}".format(end_time_morning.strftime("%H:%M")),
+        #     start_time_morning.strftime("%d/%m/%y %H:%M:%S"),
+        #     end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
+        #     "classe{}@ekoforma.com".format(formation['classe']).lower(),
+        #     calculate_duration(start_time_morning, end_time_morning),
+        #     num_participants
+        # ])
+
         meetings.append([
             workshop_number,
-            "N° Action / Programme : {}".format(formation['session']),
-            "N° de session : {}".format(formation.get('code')),
-            "N° de l’unité: 1",
-            "{} : 3 H MATIN".format(start_time_morning.strftime('%d/%m/%Y')),
-            formation['titre'],
-            "Date de la vacation : {}".format(start_time_morning.strftime("%d/%m/%y")),
-            "Heure de début : {}".format(start_time_morning.strftime("%H:%M")),
-            "Heure de Fin : {}".format(end_time_morning.strftime("%H:%M")),
+            "Formation - {}".format(formation['titre']),
             start_time_morning.strftime("%d/%m/%y %H:%M:%S"),
             end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
@@ -92,26 +103,43 @@ def create_zoom_timesheet(filepath, formation, participants):
         
         start_time_afternoon = generate_random_time(date_formation, 13, 15, 13, 28)
         end_time_afternoon = generate_random_time(date_formation,17, 35, 17, 45)
+        # meetings.append([
+        #     workshop_number,
+        #     "N° Action / Programme : {}".format(formation['session']),
+        #     "N° de session : {}".format(formation.get('code')),
+        #     "N° de l’unité: 1",
+        #     "{} : 4 H APRÈS-MIDI".format(start_time_afternoon.strftime('%d/%m/%Y')),
+        #     formation['titre'],
+        #     "Date de la vacation : {}".format(start_time_afternoon.strftime("%d/%m/%y")),
+        #     "Heure de début : {}".format(start_time_afternoon.strftime("%H:%M")),
+        #     "Heure de Fin : {}".format(end_time_afternoon.strftime("%H:%M")),
+        #     start_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
+        #     end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
+        #     "classe{}@ekoforma.com".format(formation['classe']).lower(),
+        #     calculate_duration(start_time_afternoon, end_time_afternoon),
+        #     num_participants
+        # ])
+
         meetings.append([
             workshop_number,
-            "N° Action / Programme : {}".format(formation['session']),
-            "N° de session : {}".format(formation.get('code')),
-            "N° de l’unité: 1",
-            "{} : 4 H APRÈS-MIDI".format(start_time_afternoon.strftime('%d/%m/%Y')),
-            formation['titre'],
-            "Date de la vacation : {}".format(start_time_afternoon.strftime("%d/%m/%y")),
-            "Heure de début : {}".format(start_time_afternoon.strftime("%H:%M")),
-            "Heure de Fin : {}".format(end_time_afternoon.strftime("%H:%M")),
+            "Formation - {}".format(formation['titre']),
             start_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
             end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
             calculate_duration(start_time_afternoon, end_time_afternoon),
             num_participants
         ])
+
+
         meetings_and_participants['meetings'] = meetings
         for meeting in meetings:
             ws.append(meeting)
-            ws.row_dimensions[ws.max_row].height = 40
+            ws.row_dimensions[ws.max_row].height = 60
+            workshop_cell = ws.cell(row=ws.max_row, column=1)
+            workshop_cell.alignment = Alignment(horizontal='right')
+
+            subject_cell = ws.cell(row=ws.max_row, column=2)
+            subject_cell.alignment = Alignment(wrap_text=True)
 
 
         participants_headers = [
@@ -184,7 +212,7 @@ def create_zoom_timesheet(filepath, formation, participants):
             for row in range(2):
                 if (row == 0):
                     ws.append([
-                        "{}".format(participant['nom_complet']),
+                        "{} {}".format(participant['nom'].lower(), participant['prenom'].lower()),
                         participant['email'],
                         start_time_morning_participant.strftime("%d/%m/%y %H:%M:%S"),
                         end_time_morning_participant.strftime("%d/%m/%y %H:%M:%S"),
@@ -205,7 +233,7 @@ def create_zoom_timesheet(filepath, formation, participants):
                     ]
                 if (row == 1):
                     ws.append([
-                        "{}".format(participant['nom_complet']),
+                        "{} {}".format(participant['nom'].lower(), participant['prenom'].lower()),
                         participant['email'],
                         start_time_afternoon_participant.strftime("%d/%m/%y %H:%M:%S"),
                         end_time_afternoon_participant.strftime("%d/%m/%y %H:%M:%S"),
@@ -245,6 +273,7 @@ def create_zoom_timesheet(filepath, formation, participants):
         for cell in row:
             if cell.value == 'empty' or cell.value:
                 cell.border = thin_border
+                cell.font = Font(name='Helvetica Neue', size=11)
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_directory = os.path.join(script_dir, "../downloads")
