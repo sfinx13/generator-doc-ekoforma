@@ -26,6 +26,7 @@ def create_zoom_timesheet(filepath, formation, participants):
 
     def generate_meetings_and_participants(date_formation, row_header_title = 1):
         meetings_and_participants = {}
+        virtual_meetings_and_participants = {}
         workshop_number = generate_random_string()
         merged_text = f"participants_{workshop_number}_zoom"
 
@@ -70,26 +71,27 @@ def create_zoom_timesheet(filepath, formation, participants):
             ws.column_dimensions[chr(64 + i)].width = column_width
 
         meetings = []
+        virtual_meetings = []
         num_participants = len(participants)
         
         start_time_morning = generate_random_time(date_formation, 8, 45, 8, 58)
         end_time_morning = generate_random_time(date_formation, 12, 10, 12, 15)
-        # meetings.append([
-        #     workshop_number,
-        #     "N° Action / Programme : {}".format(formation['session']),
-        #     "N° de session : {}".format(formation.get('code')),
-        #     "N° de l’unité: 1",
-        #     "{} : 3 H MATIN".format(start_time_morning.strftime('%d/%m/%Y')),
-        #     formation['titre'],
-        #     "Date de la vacation : {}".format(start_time_morning.strftime("%d/%m/%y")),
-        #     "Heure de début : {}".format(start_time_morning.strftime("%H:%M")),
-        #     "Heure de Fin : {}".format(end_time_morning.strftime("%H:%M")),
-        #     start_time_morning.strftime("%d/%m/%y %H:%M:%S"),
-        #     end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
-        #     "classe{}@ekoforma.com".format(formation['classe']).lower(),
-        #     calculate_duration(start_time_morning, end_time_morning),
-        #     num_participants
-        # ])
+        virtual_meetings.append([
+            workshop_number,
+            "N° Action / Programme : {}".format(formation['session']),
+            "N° de session : {}".format(formation.get('code')),
+            "N° de l’unité: 1",
+            "{} : 3 H MATIN".format(start_time_morning.strftime('%d/%m/%Y')),
+            formation['titre'],
+            "Date de la vacation : {}".format(start_time_morning.strftime("%d/%m/%y")),
+            "Heure de début : {}".format(start_time_morning.strftime("%H:%M")),
+            "Heure de Fin : {}".format(end_time_morning.strftime("%H:%M")),
+            start_time_morning.strftime("%d/%m/%y %H:%M:%S"),
+            end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
+            "classe{}@ekoforma.com".format(formation['classe']).lower(),
+            calculate_duration(start_time_morning, end_time_morning),
+            num_participants
+        ])
 
         meetings.append([
             workshop_number,
@@ -103,22 +105,22 @@ def create_zoom_timesheet(filepath, formation, participants):
         
         start_time_afternoon = generate_random_time(date_formation, 13, 15, 13, 28)
         end_time_afternoon = generate_random_time(date_formation,17, 35, 17, 45)
-        # meetings.append([
-        #     workshop_number,
-        #     "N° Action / Programme : {}".format(formation['session']),
-        #     "N° de session : {}".format(formation.get('code')),
-        #     "N° de l’unité: 1",
-        #     "{} : 4 H APRÈS-MIDI".format(start_time_afternoon.strftime('%d/%m/%Y')),
-        #     formation['titre'],
-        #     "Date de la vacation : {}".format(start_time_afternoon.strftime("%d/%m/%y")),
-        #     "Heure de début : {}".format(start_time_afternoon.strftime("%H:%M")),
-        #     "Heure de Fin : {}".format(end_time_afternoon.strftime("%H:%M")),
-        #     start_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
-        #     end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
-        #     "classe{}@ekoforma.com".format(formation['classe']).lower(),
-        #     calculate_duration(start_time_afternoon, end_time_afternoon),
-        #     num_participants
-        # ])
+        virtual_meetings.append([
+            workshop_number,
+            "N° Action / Programme : {}".format(formation['session']),
+            "N° de session : {}".format(formation.get('code')),
+            "N° de l’unité: 1",
+            "{} : 4 H APRÈS-MIDI".format(start_time_afternoon.strftime('%d/%m/%Y')),
+            formation['titre'],
+            "Date de la vacation : {}".format(start_time_afternoon.strftime("%d/%m/%y")),
+            "Heure de début : {}".format(start_time_afternoon.strftime("%H:%M")),
+            "Heure de Fin : {}".format(end_time_afternoon.strftime("%H:%M")),
+            start_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
+            end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
+            "classe{}@ekoforma.com".format(formation['classe']).lower(),
+            calculate_duration(start_time_afternoon, end_time_afternoon),
+            num_participants
+        ])
 
         meetings.append([
             workshop_number,
@@ -132,6 +134,7 @@ def create_zoom_timesheet(filepath, formation, participants):
 
 
         meetings_and_participants['meetings'] = meetings
+        virtual_meetings_and_participants['meetings'] = meetings
         for meeting in meetings:
             ws.append(meeting)
             ws.row_dimensions[ws.max_row].height = 60
@@ -168,8 +171,10 @@ def create_zoom_timesheet(filepath, formation, participants):
 
         if 'participants' not in meetings_and_participants:
             meetings_and_participants['participants'] = {}
+            virtual_meetings_and_participants['participants'] = {}
             if 'formateur' not in meetings_and_participants['participants']:
                 meetings_and_participants['participants']['formateur'] = {}
+                virtual_meetings_and_participants['participants']['formateur'] = {}
 
         meetings_and_participants['participants']['formateur']['morning'] = [
             formation['formateur'],
@@ -251,7 +256,10 @@ def create_zoom_timesheet(filepath, formation, participants):
                     ]
                 ws.row_dimensions[ws.max_row].height = 25
         
-        return meetings_and_participants
+
+        virtual_meetings_and_participants['participants'] = meetings_and_participants['participants']
+
+        return virtual_meetings_and_participants
 
                     
         

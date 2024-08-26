@@ -21,7 +21,7 @@ def generate_timesheet_zoom():
             wb, ws, full_meetings_and_participants = timesheet_generator.create_zoom_timesheet(filename, formation, participants)
             
             # Appel de la fonction pour générer les tableaux pour chaque demi-journée
-            # virtualclass_synthese_generator.generate_tables_for_each_meeting(filename, full_meetings_and_participants)
+#            virtualclass_synthese_generator.generate_tables_for_each_meeting(filename, full_meetings_and_participants)
 
             gray_fill = PatternFill(start_color='DCDCDC', end_color='DCDCDC', fill_type='solid')
             bold_font = Font(name='Calibri', size=11, bold=True)
