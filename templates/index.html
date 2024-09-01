@@ -7,11 +7,14 @@
             <a href="./../static/99LH2325001.xlsx" download>Modèle à remplir à télécharger</a>
         </p>
         <fieldset>
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
+            <form id="form-generate-doc" method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
                 <div>
                     <input type="file" id="file" class="file" name="file">
                 </div>
-                <input type="submit" value="Générer">
+                <div>
+                    <input type="submit" id="submit-btn" value="Générer">
+                    <div id="spinner" class="spinner"></div>
+                </div>
             </form>
         </fieldset>
     </section>

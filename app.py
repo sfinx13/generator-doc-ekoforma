@@ -17,6 +17,12 @@ ALLOWED_EXTENSIONS = {'xls', 'xlsx'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def clean_upload_dir():
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if file_path.endswith('.xlsx') or file_path.endswith('.xls'):
+            os.remove(file_path)
+
 @app.before_request
 def log_request_info():
     app.logger.info('Headers: %s', request.headers)
@@ -24,9 +30,12 @@ def log_request_info():
 
 @app.route("/")
 def home():
+    # Clean upload file
+    if os.path.exists(app.config['UPLOAD_FOLDER']):
+        clean_upload_dir()
     # Lister les fichiers dans le répertoire
     files = os.listdir(app.config['GENERATED_FILES_FOLDER'])
-    valid_files = [f for f in files if f.endswith('.xlsx') or f.endswith('.docx')]
+    valid_files = [f for f in files if f.endswith('.xlsx') or f.endswith('.docx') or f.endswith('.pdf')]
     sorted_files = sorted(valid_files)
     return render_template('index.html', title='Génération de documents administratifs', files=sorted_files)
 
@@ -36,13 +45,13 @@ def upload_file():
         if 'file' not in request.files:
             flash('Pas de fichier selectionné', 'error')
 
-        
         file = request.files.get('file')
 
         if file.filename == '':
             flash('Pas de fichier selectionné', 'error')
     
         if file and allowed_file(file.filename):
+            clean_upload_dir()
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(filepath)
             service_handler.generate_timesheet_zoom()
@@ -70,7 +79,7 @@ def download_all_files():
             for root, dirs, files in os.walk(folder_path):
                 for file in files:
                     print(file)
-                    if 'xlsx' in file or 'docx' in file:
+                    if 'xlsx' in file or 'docx' in file or 'pdf' in file:
                         file_path = os.path.join(root, file)
                         zipf.write(file_path, os.path.relpath(file_path, folder_path))
 
@@ -106,7 +115,7 @@ def delete_all_files():
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)
                 
-                if os.path.isfile(file_path) or os.path.islink(file_path):
+                if file_path.endswith('.pdf') or file_path.endswith('.docx') or file_path.endswith('xlsx'):
                     os.remove(file_path)
 
             flash("Le contenu du répertoire a été supprimé avec succès.", 'success')
