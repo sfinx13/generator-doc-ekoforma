@@ -1,10 +1,14 @@
 from docx import Document
+from docx.shared import Inches
 from datetime import datetime, timedelta
+from PyPDF2 import PdfMerger
+import subprocess
 import os
 
-doc_path = 'static/IDEL_ATTESTATION_DE_PARTICIPATION_A_UN_PROGRAMME_DE_DPC.docx'
 
 def generate_attendance_certificate(participant, formation):
+    doc_path = f"static/{formation['categorie']}_ATTESTATION_DE_PARTICIPATION_A_UN_PROGRAMME_DE_DPC.docx"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     doc = Document(doc_path)
     formation_titre = formation['titre'].replace('\n', '')
     formation_orientation = formation['orientation']
@@ -33,15 +37,6 @@ def generate_attendance_certificate(participant, formation):
         "N° enregistrement OGDPC / Agence nationale du DPC :": formation['numero dpc'],
         "//2024": date_signature.strftime("%d/%m/%Y")
     }
-
-    # for paragraph in doc.paragraphs:
-    #     for placeholder, actual_value in info_to_add.items():
-    #         if placeholder in paragraph.text:
-    #             paragraph.text = paragraph.text.replace(placeholder, actual_value)
-    #             for run in paragraph.runs:
-    #                 if actual_value in run.text:
-    #                     run.bold = True
-
 
     for paragraph in doc.paragraphs:
         for placeholder, actual_value in info_to_add.items():
@@ -106,9 +101,53 @@ def generate_attendance_certificate(participant, formation):
                     paragraph.add_run(f" {actual_value}").bold = True
                     if len(parts) > 1:
                         paragraph.add_run(parts[1]).bold = True
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+                # Vérifier si le paragraphe contient "Cachet et signature"
+        if "Cachet et signature" in paragraph.text:
+            # Ajouter l'image juste après ce paragraphe
+            image_path = os.path.join(script_dir, "../static/ekoforma_stamp.png")
+            # Effacer le texte existant
+            paragraph.clear()
+            # Réécrire "Cachet et signature"
+            paragraph.add_run("Cachet et signature")
+            # Ajouter l'image immédiatement après le texte
+            paragraph.add_run("\n")
+            paragraph.add_run().add_picture(image_path, width=Inches(1.5))  # Ajustez la taille de l'image selon vos besoins
+            # Centrer le texte et l'image
+            paragraph.alignment = 2
     output_directory = os.path.join(script_dir, "../downloads")
     output_file = os.path.join(output_directory, f"../downloads/{formation.get('code')}_ATTESTATION_DE_PARTICIPATION_A_UN_PROGRAMME_DE_DPC_{participant['nom_complet']}.docx")                        
 
     doc.save(output_file)
+
+    # Conversion du fichier Word en PDF en utilisant LibreOffice en mode headless
+    pdf_output_file = output_file.replace(".docx", ".pdf")
+    
+
+    try:
+        # Commande pour convertir .docx en .pdf
+        command = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', output_directory, output_file]
+        subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(f"PDF généré avec succès : {pdf_output_file}")
+    except subprocess.CalledProcessError as e:
+        print(f"Erreur lors de la conversion en PDF : {e.stderr.decode('utf-8')}")
+
+    
+    return pdf_output_file
+
+
+def merge_pdfs(formation_code, output_directory):
+    merger = PdfMerger()
+    for filename in os.listdir(output_directory):
+        if filename.endswith(".pdf") and formation_code in filename and 'merged' not in filename:
+            file_path = os.path.join(output_directory, filename)
+            print(filename)
+            print('----')
+            merger.append(file_path)
+    
+    merged_pdf_path = os.path.join(output_directory, f"{formation_code}_merged_document.pdf")
+    with open(merged_pdf_path, 'wb') as merged_file:
+        merger.write(merged_file)
+
+    print(f"PDF fusionné généré : {merged_pdf_path}")
+
+    return merged_pdf_path

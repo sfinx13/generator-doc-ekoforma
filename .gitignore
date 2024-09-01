@@ -2,7 +2,10 @@ __pycache__/
 doc/
 venv/
 uploads/*.xlsx
+uploads/*.pdf
+uploads/*.docx
 downloads/*.xlsx
 downloads/*.docx
 downloads/*.zip
+downloads/*.pdf
 *.~lock.*

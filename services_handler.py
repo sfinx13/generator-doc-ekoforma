@@ -2,9 +2,9 @@ import os
 from openpyxl.styles import Font, PatternFill
 import services.source_parser as source_parser
 import services.timesheet_generator as timesheet_generator
-import services.attendance_certificates_generator as attendance_certificates_generator
-import services.virtualclass_synthese_generator as virtualclass_synthese_generator
+from services.attendance_certificates_generator import generate_attendance_certificate, merge_pdfs
 
+pdf_files = []
 
 def generate_timesheet_zoom():
     filepath = 'uploads/'
@@ -46,14 +46,20 @@ def generate_attendance_certificates():
     filepath = 'uploads/'
 
     for filename in os.listdir(filepath):
-        formation = source_parser.create_formation(filepath + filename)
-        participants = source_parser.create_participants(filepath + filename)
-        if len(formation) == 0 or len(participants) == 0:
-            continue
+        if filename.endswith('.xlsx'):
+            formation = source_parser.create_formation(filepath + filename)
+            participants = source_parser.create_participants(filepath + filename)
+            if len(formation) == 0 or len(participants) == 0:
+                continue
 
-        formation_titre = formation['titre'].replace('\n', '')
-        print(f"Formation - {formation_titre}")
-        
-        for participant in participants:
-            attendance_certificates_generator.generate_attendance_certificate(participant, formation)
-            print(f"    Attestation de présence généré pour {participant['nom_complet']}")
+            formation_titre = formation['titre'].replace('\n', '')
+            print(f"Formation - {formation_titre}")
+            
+            for participant in participants:
+                print(f"Attestation de présence généré pour {participant['nom_complet']}")
+                pdf_file = generate_attendance_certificate(participant, formation)
+                pdf_files.append(pdf_file)
+
+
+            # Fusionner tous les PDF générés pour la formation
+            merge_pdfs(formation['code'], 'downloads/')
