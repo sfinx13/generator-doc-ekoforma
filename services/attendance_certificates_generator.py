@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from PyPDF2 import PdfMerger
 import subprocess
 import os
+import platform
+from docx2pdf import convert
+
 
 
 def generate_attendance_certificate(participant, formation):
@@ -123,14 +126,24 @@ def generate_attendance_certificate(participant, formation):
     pdf_output_file = output_file.replace(".docx", ".pdf")
     
 
-    try:
-        # Commande pour convertir .docx en .pdf
-        command = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', output_directory, output_file]
-        subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(f"PDF généré avec succès : {pdf_output_file}")
-    except subprocess.CalledProcessError as e:
-        print(f"Erreur lors de la conversion en PDF : {e.stderr.decode('utf-8')}")
+    system_platform = platform.system()
 
+    if system_platform == 'Linux' or system_platform == 'Darwin':
+        try:
+            # Commande pour convertir .docx en .pdf
+            command = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', output_directory, output_file]
+            subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(f"PDF généré avec succès : {pdf_output_file}")
+        except subprocess.CalledProcessError as e:
+            print(f"Erreur lors de la conversion en PDF : {e.stderr.decode('utf-8')}")
+    elif system_platform == 'Windows':
+        try:
+            convert(output_file, output_directory)
+            print(f"PDF généré avec succès : {pdf_output_file}")
+        except Exception as e:
+            print(f"Erreur lors de la conversion en PDF (docx2pdf) : {str(e)}")
+    else:
+        print(f"Système d'exploitation {system_platform} non pris en charge pour cette conversion.")
     
     return pdf_output_file
 

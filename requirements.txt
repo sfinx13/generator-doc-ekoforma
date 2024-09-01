@@ -1,6 +1,7 @@
 altgraph==0.17.4
 blinker==1.8.2
 click==8.1.7
+docx2pdf==0.1.8
 et-xmlfile==1.1.0
 flake8==7.1.0
 Flask==3.0.3
