@@ -136,6 +136,8 @@ def generate_attendance_certificate(participant, formation):
             print(f"PDF généré avec succès : {pdf_output_file}")
         except subprocess.CalledProcessError as e:
             print(f"Erreur lors de la conversion en PDF : {e.stderr.decode('utf-8')}")
+        except Exception as e:
+            print(f"Problème avec libreoffice : {str(e)}")
     elif system_platform == 'Windows':
         try:
             convert(output_file, output_directory)
