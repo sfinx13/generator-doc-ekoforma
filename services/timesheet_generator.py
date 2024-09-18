@@ -1,10 +1,27 @@
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.worksheet.page import PageMargins
+from openpyxl.worksheet.page import PrintPageSetup
 from datetime import datetime, timedelta
 import random
 import string
 import os
+
+def setup_excel_for_pdf(ws):
+    """
+    Configure la mise en page de la feuille Excel pour qu'elle s'ajuste à une page PDF.
+    """
+    # Définir les marges de la page
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.75, bottom=0.75)
+
+    # Configurer la mise à l'échelle pour ajuster à une seule page
+    ws.print_options.horizontalCentered = True  # Centrer horizontalement
+    ws.print_options.verticalCentered = True    # Centrer verticalement
+    
+    # Ajuster à une seule page
+    ws.page_setup.fitToWidth = 1  # Réduire pour tenir sur la largeur d'une page
+    ws.page_setup.fitToHeight = 1  # Réduire pour tenir sur la hauteur d'une page
 
 def generate_random_string(length=12):
     return '9' + ''.join(random.choices(string.digits, k=length-1))
@@ -335,6 +352,9 @@ def create_zoom_timesheet(filepath, formation, participants):
     if 'Sheet' in wb.sheetnames:
         del wb['Sheet']
 
+
+    # Configurer la mise en page pour PDF
+    setup_excel_for_pdf(ws)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_directory = os.path.join(script_dir, "../downloads")
     output_file = os.path.join(output_directory, "{}_zoom_timesheet_{}".format(formation['code'], filepath))
