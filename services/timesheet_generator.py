@@ -22,6 +22,10 @@ def setup_excel_for_pdf(ws):
     ws.page_setup.fitToWidth = 1  # Réduire pour tenir sur la largeur d'une page
     ws.page_setup.fitToHeight = 1  # Réduire pour tenir sur la hauteur d'une page
 
+    # Configurer l'orientation (facultatif, si nécessaire)
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE  # Paysage si beaucoup de colonnes
+    ws.page_setup.paperSize = ws.PAPERSIZE_A4             # A4 par défaut
+
 def generate_random_string(length=12):
     return '9' + ''.join(random.choices(string.digits, k=length-1))
 
