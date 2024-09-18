@@ -90,7 +90,7 @@ def create_zoom_timesheet(filepath, formation, participants):
             end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
             calculate_duration(start_time_morning, end_time_morning),
-            num_participants
+            num_participants + 1 
         ])
 
         meetings.append([
@@ -100,7 +100,7 @@ def create_zoom_timesheet(filepath, formation, participants):
             end_time_morning.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
             calculate_duration(start_time_morning, end_time_morning),
-            num_participants
+            num_participants + 1
         ])
         
         start_time_afternoon = generate_random_time(date_formation, 13, 15, 13, 28)
@@ -119,7 +119,7 @@ def create_zoom_timesheet(filepath, formation, participants):
             end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
             calculate_duration(start_time_afternoon, end_time_afternoon),
-            num_participants
+            num_participants + 1
         ])
 
         meetings.append([
@@ -129,7 +129,7 @@ def create_zoom_timesheet(filepath, formation, participants):
             end_time_afternoon.strftime("%d/%m/%y %H:%M:%S"),
             "classe{}@ekoforma.com".format(formation['classe']).lower(),
             calculate_duration(start_time_afternoon, end_time_afternoon),
-            num_participants
+            num_participants + 1
         ])
 
 
@@ -155,7 +155,7 @@ def create_zoom_timesheet(filepath, formation, participants):
             "Salle d’attente"
         ]
 
-        ws.append(['empty'])
+        ws.append(['empty', '', '', '', '', '', 'empty'])
         ws.append(participants_headers)
         ws.row_dimensions[ws.max_row].height = 25
 
@@ -212,7 +212,7 @@ def create_zoom_timesheet(filepath, formation, participants):
         end_time_morning_participant = end_time_morning
         start_time_afternoon_participant = generate_random_time(date_formation, 13, 30, 13, 37)
         end_time_afternoon_participant = end_time_afternoon
-        ws.append(['empty'])
+        ws.append(['empty', '', '', '', '', '', 'empty'])
         for participant in participants:
             for row in range(2):
                 if (row == 0):
@@ -254,6 +254,7 @@ def create_zoom_timesheet(filepath, formation, participants):
                         end_time_afternoon_participant.strftime("%d/%m/%y %H:%M:%S"),
                         calculate_duration(start_time_afternoon_participant, end_time_afternoon_participant),
                     ]
+                    ws.append(['empty', '', '', '', '', '', 'empty'])
                 ws.row_dimensions[ws.max_row].height = 25
         
 
@@ -282,6 +283,12 @@ def create_zoom_timesheet(filepath, formation, participants):
             if cell.value == 'empty' or cell.value:
                 cell.border = thin_border
                 cell.font = Font(name='Helvetica Neue', size=11)
+                if cell.value == 'empty':
+                    cell.value = ''
+            
+            if cell.value and isinstance(cell.value, str) and '@' in cell.value:
+                # Appliquer le soulignement si la cellule contient un email
+                cell.font = Font(underline='single')
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_directory = os.path.join(script_dir, "../downloads")
