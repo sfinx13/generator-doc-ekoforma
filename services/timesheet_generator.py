@@ -19,8 +19,8 @@ def setup_excel_for_pdf(ws):
     ws.print_options.verticalCentered = True    # Centrer verticalement
     
     # Ajuster à une seule page
-    ws.page_setup.fitToWidth = 1  # Réduire pour tenir sur la largeur d'une page
-    ws.page_setup.fitToHeight = 1  # Réduire pour tenir sur la hauteur d'une page
+    ws.page_setup.fitToWidth = 0.5  # Réduire pour tenir sur la largeur d'une page
+    ws.page_setup.fitToHeight = 0.5  # Réduire pour tenir sur la hauteur d'une page
 
     # Configurer l'orientation (facultatif, si nécessaire)
     ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE  # Paysage si beaucoup de colonnes
@@ -318,6 +318,7 @@ def create_zoom_timesheet(filepath, formation, participants):
                 cell.fill = gray_fill
                 cell.font = bold_font
    
+        setup_excel_for_pdf(ws)
 
 
     # ws.append([])
@@ -350,6 +351,7 @@ def create_zoom_timesheet(filepath, formation, participants):
                 cell.fill = gray_fill
                 cell.font = bold_font
 
+        setup_excel_for_pdf(ws)
 
     # Supprimer la feuille par défaut créée par openpyxl
     if 'Sheet' in wb.sheetnames:
@@ -357,7 +359,6 @@ def create_zoom_timesheet(filepath, formation, participants):
 
 
     # Configurer la mise en page pour PDF
-    setup_excel_for_pdf(ws)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_directory = os.path.join(script_dir, "../downloads")
     output_file = os.path.join(output_directory, "{}_zoom_timesheet_{}".format(formation['code'], filepath))
