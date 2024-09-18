@@ -1,5 +1,6 @@
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.worksheet.worksheet import Worksheet
 from datetime import datetime, timedelta
 import random
 import string
@@ -20,19 +21,17 @@ def calculate_duration(start_time, end_time):
 
 def create_zoom_timesheet(filepath, formation, participants):
     wb = Workbook()
-    ws = wb.active
-    ws.title = "Participants"
     full_meetings_and_participants = {}
+    workshop_number = generate_random_string()
+    merged_text = f"participants_{workshop_number}_zoom"
 
-    def generate_meetings_and_participants(date_formation, row_header_title = 1):
+    def generate_meetings_and_participants(date_formation, ws: Worksheet):
         meetings_and_participants = {}
         virtual_meetings_and_participants = {}
-        workshop_number = generate_random_string()
-        merged_text = f"participants_{workshop_number}_zoom"
 
         # Fusion des cellules pour la première ligne
-        ws.merge_cells(start_row=row_header_title, start_column=1, end_row=row_header_title, end_column=7)
-        merged_cell = ws.cell(row=row_header_title, column=1)
+        ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=7)
+        merged_cell = ws.cell(row=1, column=1)
         merged_cell.value = merged_text
         merged_cell.font = Font(name='Helvetica Neue', size=11, bold=True)
         merged_cell.alignment = Alignment(horizontal='center', vertical='center')
@@ -264,32 +263,78 @@ def create_zoom_timesheet(filepath, formation, participants):
 
                     
         
-    full_meetings_and_participants['date_debut'] = generate_meetings_and_participants(formation['date_debut'])
+    # full_meetings_and_participants['date_debut'] = generate_meetings_and_participants(formation['date_debut'])
     
-    ws.append([])
-    ws.row_dimensions[ws.max_row + 1].height = 80
-    ws.merge_cells(start_row=ws.max_row + 1, start_column=1, end_row=ws.max_row + 1, end_column=7)
-
-    if (formation.get('date_fin')):
-        full_meetings_and_participants['date_fin'] = generate_meetings_and_participants(formation['date_fin'], ws.max_row + 1)
 
     thin_border = Border(left=Side(style='thin'),
                          right=Side(style='thin'),
                          top=Side(style='thin'),
                          bottom=Side(style='thin'))
+    gray_fill = PatternFill(start_color='DCDCDC', end_color='DCDCDC', fill_type='solid')
+    bold_font = Font(name='Calibri', size=11, bold=True)
     
-    for row in ws.iter_rows():
-        for cell in row:
-            if cell.value == 'empty' or cell.value:
-                cell.border = thin_border
-                cell.font = Font(name='Helvetica Neue', size=11)
-                if cell.value == 'empty':
-                    cell.value = ''
-            
-            if cell.value and isinstance(cell.value, str) and '@' in cell.value:
-                # Appliquer le soulignement si la cellule contient un email
-                cell.font = Font(underline='single')
-    
+    if 'date_debut' in formation:
+        date_formation = formation['date_debut']
+        sheet_name = date_formation.strftime('%d-%m-%Y')  # Nommer l'onglet
+        ws = wb.create_sheet(title=sheet_name)  # Créer un nouvel onglet
+        full_meetings_and_participants['date_debut'] = generate_meetings_and_participants(date_formation, ws)
+        for row in ws.iter_rows():
+            for cell in row:
+                if cell.value == 'empty' or cell.value:
+                    cell.border = thin_border
+                    cell.font = Font(name='Helvetica Neue', size=11)
+                    if cell.value == 'empty':
+                        cell.value = ''
+                        if cell.row == ws.max_row:
+                            cell.border = None
+                
+                if cell.value and isinstance(cell.value, str) and '@' in cell.value:
+                    # Appliquer le soulignement si la cellule contient un email
+                    cell.font = Font(underline='single')
+
+        for row in range(3, ws.max_row + 1):
+            cell = ws.cell(row=row, column=1)
+            if cell.value and cell.value != 'N° de réunion' and not cell.value.endswith('zoom'):
+                cell.fill = gray_fill
+                cell.font = bold_font
+   
+
+
+    # ws.append([])
+    # ws.row_dimensions[ws.max_row + 1].height = 80
+    # ws.merge_cells(start_row=ws.max_row + 1, start_column=1, end_row=ws.max_row + 1, end_column=7)
+
+    # if (formation.get('date_fin')):
+    #    full_meetings_and_participants['date_fin'] = generate_meetings_and_participants(formation['date_fin'], ws.max_row + 1)
+
+    if 'date_fin' in formation:
+        date_formation = formation['date_fin']
+        sheet_name = date_formation.strftime('%d-%m-%Y')  # Créer un onglet pour la date de fin
+        ws = wb.create_sheet(title=sheet_name)
+        full_meetings_and_participants['date_fin'] = generate_meetings_and_participants(date_formation, ws)
+        for row in ws.iter_rows():
+            for cell in row:
+                if cell.value == 'empty' or cell.value:
+                    cell.border = thin_border
+                    cell.font = Font(name='Helvetica Neue', size=11)
+                    if cell.value == 'empty':
+                        cell.value = ''
+                
+                if cell.value and isinstance(cell.value, str) and '@' in cell.value:
+                    # Appliquer le soulignement si la cellule contient un email
+                    cell.font = Font(underline='single')
+        
+        for row in range(3, ws.max_row + 1):
+            cell = ws.cell(row=row, column=1)
+            if cell.value and cell.value != 'N° de réunion' and not cell.value.endswith('zoom'):
+                cell.fill = gray_fill
+                cell.font = bold_font
+
+
+    # Supprimer la feuille par défaut créée par openpyxl
+    if 'Sheet' in wb.sheetnames:
+        del wb['Sheet']
+
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_directory = os.path.join(script_dir, "../downloads")
     output_file = os.path.join(output_directory, "{}_zoom_timesheet_{}".format(formation['code'], filepath))

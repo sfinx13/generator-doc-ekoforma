@@ -1,5 +1,5 @@
 import os
-from openpyxl.styles import Font, PatternFill
+import subprocess
 import services.source_parser as source_parser
 import services.timesheet_generator as timesheet_generator
 from services.attendance_certificates_generator import generate_attendance_certificate, merge_pdfs
@@ -23,17 +23,10 @@ def generate_timesheet_zoom():
             # Appel de la fonction pour générer les tableaux pour chaque demi-journée
 #            virtualclass_synthese_generator.generate_tables_for_each_meeting(filename, full_meetings_and_participants)
 
-            gray_fill = PatternFill(start_color='DCDCDC', end_color='DCDCDC', fill_type='solid')
-            bold_font = Font(name='Calibri', size=11, bold=True)
-            for row in range(3, ws.max_row + 1):
-                cell = ws.cell(row=row, column=1)
-                if cell.value and cell.value != 'N° de réunion' and not cell.value.endswith('zoom'):
-                    cell.fill = gray_fill
-                    cell.font = bold_font
-                    if cell.value == 'empty':
-                        cell.value = ''
 
-            wb.save("downloads/{}_zoom_timesheet_{}".format(formation['code'], filename))
+            output_excel = "downloads/{}_zoom_timesheet_{}".format(formation['code'], filename)
+            wb.save(output_excel)
+            convert_excel_to_pdf(output_excel)
             print("zoom_timesheet_{} generated".format(filename))
         else:
             print(filename, 'cannot be used!')
@@ -63,3 +56,24 @@ def generate_attendance_certificates():
 
             # Fusionner tous les PDF générés pour la formation
             merge_pdfs(formation['code'], 'downloads/')
+
+
+def convert_excel_to_pdf(input_file):
+    """
+    Convertit un fichier Excel en PDF en utilisant LibreOffice en mode headless.
+    """
+    try:
+        # Créer le chemin de sortie en remplaçant l'extension par ".pdf"
+        output_file = input_file.replace(".xlsx", ".pdf").replace(".xls", ".pdf")
+        
+        # Commande LibreOffice en mode headless pour convertir en PDF
+        command = [
+            "libreoffice", "--headless", "--convert-to", "pdf", "--outdir", os.path.dirname(output_file), input_file
+        ]
+
+        # Exécuter la commande LibreOffice
+        subprocess.run(command, check=True)
+        
+        print(f"Conversion réussie : {output_file}")
+    except subprocess.CalledProcessError as e:
+        print(f"Erreur lors de la conversion de {input_file} en PDF : {e}")
